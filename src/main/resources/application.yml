@@ -1,0 +1,53 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  datasource:
+    username: "dorm_system"
+    password: "jinke200098cs"
+    url: "jdbc:mysql://43.143.170.221:3306/dorm_system"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  redis:
+    port: 16379
+    database: 0
+    host: 43.143.170.221
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    password: "jinke200098cs"
+    timeout: 1000
+
+  rabbitmq:
+    host: 43.143.170.221
+    port: 5672
+    username: "user01"
+    password: "123456"
+    virtual-host: orderHost
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*Mapper.xml
+  global-config:
+    db-config:
+      logic-not-delete-value: 1
+      logic-delete-value: 0
+
