@@ -10,18 +10,15 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class JwtTokenUtil {
     private static String tokenSecret = "dorm-system";
-    private static long accessExpiration = 30 * 1 * 1000;
-    private static long refreshExpiration = 60 * 60 * 1 * 1000;
-    private static String generateToken(Map<String, Object> claims, long expireTime) {
+    public static String generateToken(Map<String, Object> claims, long expireTime) {
         String token = null;
         try {
             Date issuedAt = new Date(System.currentTimeMillis());
-            Date expireAt = new Date(issuedAt.getTime() + expireTime);
+            Date expireAt = new Date(issuedAt.getTime() + expireTime * 1000);
             JWTCreator.Builder jwtBuilder = JWT.create()
                                                .withIssuer("auth0") // 发行人
                                                .withIssuedAt(issuedAt) // 开始时间
@@ -36,17 +33,7 @@ public class JwtTokenUtil {
         return token;
     }
 
-    public static String generateAccessToken(String uid) {
-        return generateToken(new HashMap<String, Object>(){{
-            put("uid", uid);
-        }}, accessExpiration);
-    }
 
-    public static String generateRefreshToken(String uid) {
-        return generateToken(new HashMap<String, Object>(){{
-            put("uid", uid);
-        }}, refreshExpiration);
-    }
 
     public static Boolean checkToken(String token) {
         try {

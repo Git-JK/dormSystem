@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import seckill.dormsystem.common.utils.JwtTokenUtil;
+import seckill.dormsystem.service.RedisService;
 import seckill.dormsystem.service.TokenService;
 
 import javax.annotation.Resource;
@@ -16,6 +17,9 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Resource
     private TokenService tokenService;
 
+    @Resource
+    private RedisService redisService;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 跨域请求会首先发一个option请求，直接返回正常状态并通过拦截器
@@ -24,24 +28,13 @@ public class TokenInterceptor implements HandlerInterceptor {
             return true;
         }
         response.setCharacterEncoding("utf-8");
-        String accessToken = request.getHeader("accessToken");
-        String refreshToken = request.getHeader("refreshToken");
-        if(accessToken != null) {
-            Boolean accessResult = JwtTokenUtil.checkToken(accessToken);
-            if(accessResult) {
-//                System.out.println("pass TokenInterceptor!");
-                return true;
-            }
-        }
-        if(refreshToken != null) {
-            Boolean refreshResult = JwtTokenUtil.checkToken(refreshToken);
-            if(refreshResult) {
-                String newRefreshToken = tokenService.refreshToken(refreshToken);
-                String uid = JwtTokenUtil.getClaim(refreshToken, "uid");
-                String newAccessToken = JwtTokenUtil.generateAccessToken(uid);
-                response.setHeader("accessToken", newAccessToken);
-                response.setHeader("refreshToken", newRefreshToken);
-//                System.out.println("pass Interceptor, refreshToken refreshed!");
+        String[] authHeader = request.getHeader("Authorization").split(" ");
+        if(authHeader.length == 2 && "Bearer".equals(authHeader[0])) {
+            String accessToken = authHeader[1];
+            Boolean verifyResult = tokenService.checkToken(accessToken);
+            Boolean redisResult = redisService.hasKey(accessToken);
+            if(verifyResult && redisResult) {
+                System.out.println("pass TokenInterceptor!");
                 return true;
             }
         }
