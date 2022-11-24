@@ -51,3 +51,8 @@ mybatis-plus:
       logic-not-delete-value: 1
       logic-delete-value: 0
 
+token:
+  accessExpiration: 7200 # 2h
+  refreshExpiration: 86400 # 1 day
+  tokenType: "bearer"
+  scope: "app"
